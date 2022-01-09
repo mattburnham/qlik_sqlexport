@@ -1,0 +1,66 @@
+/*
+
+By default, non-SELECT queries are disabled in the Qlik ODBC Connector Package and users will get an error message indicating this if the query is present in the load script. In order to enable non-SELECT queries, allow-nonselect-queries setting should be set to True by the Qlik administrator. 
+
+
+To enable non-SELECT queries:
+
+
+
+1. Modify the QvOdbcConnectorPackage.exe.config found in the locations mentioned below.
+Set the parameter allow-nonselect-queries to True  Note: This is case sensitive. true will not work.
+
+Note: In a multi node environment, the changes need to be applied to all nodes.
+Configuration file QvOdbcConnectorPackage.exe.config locations:
+
+Qlik Sense Enterprise: C:\Program Files\Common Files\Qlik\Custom Data\QvOdbcConnectorPackage
+
+Qlik Sense Desktop:    C:\Users\user-name\AppData\Local\Programs\Qlik\Sense\Connectors\QvOdbcConnectorPackage
+                       or C:\Users\user-name\AppData\Local\Programs\Common Files\Qlik\Custom Data\QvOdbcConnectorPackage
+
+QlikView:              C:\Program Files\Common Files\QlikTech\Custom Data\QvOdbcConnectorPackage
+
+
+Note: No service restarts should be required. 
+
+
+Source: https://community.qlik.com/t5/Knowledge-Base/Connector-reply-error-Executing-non-SELECT-queries-is-disabled/ta-p/1716322
+
+
+
+
+
+
+
+============================================================
+mySQL minimum configuration (my.ini)
+
+[mysqld]
+key_buffer_size = 200M
+max_allowed_packet = 2GB
+table_open_cache = 4
+sort_buffer_size = 100M
+read_buffer_size = 100M
+read_rnd_buffer_size = 100M
+net_buffer_length = 100M
+thread_stack = 10M
+local-infile
+
+[mysqldump]
+max_allowed_packet = 2GB
+
+[mysql]
+local_infile = 1
+loose-local-infile = 1
+GLOBAL local_infile = 1
+
+
+
+odbcad32 config:
+Details > Misc > "Enable LOAD DATA LOCAL INFLIE statements"
+
+============================================================
+
+
+*/
+
