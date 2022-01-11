@@ -1,0 +1,71 @@
+Sub CreateSQLValues(pTableSource, pTableOutput, pRows)
+
+
+ // Debug
+ Trace
+ .
+ -------------------------------------------------------------
+ > Reading CreateSQLValues from table: $(pTableSource) ($(pRows))
+ -------------------------------------------------------------;
+
+
+ For sqlCreateSQLValues_Fields = 1 to NoOfFields('$(pTableSource)')
+
+  // Get fields from table:
+  [CreateSQLValues_Field]:
+  Load
+   FieldName($(sqlCreateSQLValues_Fields), '$(pTableSource)') as [CreateSQLValues_Field],
+   RowNo()                                                    as [CreateCSVValues_RowNr]
+  AutoGenerate(1);
+
+ Next sqlCreateSQLValues_Fields // For sqlCreateSQLValues_Fields = 1 to NoOfFields('$(pTableSource)')
+
+
+ // Create SQL strings:
+ [CreateSQLValues_SQL]:
+ Load
+  'SQL INSERT INTO $(pTableOutput) (' & Concat([CreateSQLValues_Field], ',' & Chr(10), [CreateCSVValues_RowNr]) & ')'         as [CreateSQLValues_Insert],
+  'Chr(39) & ' & Concat([CreateSQLValues_Field], ' & Chr(39) & Chr(44) & Chr(39) & ', [CreateCSVValues_RowNr]) & ' & Chr(39)' as [CreateSQLValues_Value]
+ Resident [CreateSQLValues_Field];
+
+
+ // Get field values:
+ Let sqlCreateSQLValues_Insert = Peek('CreateSQLValues_Insert', 0, 'CreateSQLValues_SQL');
+ Let sqlCreateSQLValues_Value  = Peek('CreateSQLValues_Value',  0, 'CreateSQLValues_SQL');
+
+
+ // Clean tables:
+ Drop Tables
+  [CreateSQLValues_Field],
+  [CreateSQLValues_SQL];
+
+
+ // 
+ [CreateSQLValues_Table_$(pTableSource)]:
+ Load   	
+  '$(sqlCreateSQLValues_Insert)'                                              as [$(pTableSource)_Insert],
+  [$(pTableSource)_ID],
+  Concat([$(pTableSource)_Value],  ',' & Chr(10))                             as [$(pTableSource)_Value]
+ Group by
+  [$(pTableSource)_ID]
+ ;
+ Load
+  Ceil( ( RecNo() / $(pRows) ) )                                              as [$(pTableSource)_ID],
+  Replace('(' & $(sqlCreateSQLValues_Value) & ')', Chr(39) & Chr(39), 'NULL') as [$(pTableSource)_Value]
+ Resident [$(pTableSource)];
+
+
+ // Clean variables:
+ SET sqlCreateSQLValues_Fields = '';
+ SET sqlCreateSQLValues_Insert = '';
+ SET sqlCreateSQLValues_Value  = '';
+
+
+ // Debug
+ Trace 
+ .
+ -------------------------------------------------------------
+  > Ending CreateSQLValues
+ -------------------------------------------------------------;
+ 
+End Sub // Sub CreateSQLValues(pTableSource, pTableOutput, pRows)

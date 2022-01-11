@@ -1,0 +1,166 @@
+Sub CreateCSVInsert(pTableSource, pTableOutput, pMode, pPath, pPath_Files, pFormat, pDelimiter)
+
+ /*
+ Call CreateCSVInsert('Qlik_Table', 'Database_Table', [Mode], '[Path]', '[Path_Files]', '[Format]', '[Delimiter]');
+
+ TableSource (Qlik_Table):     Table on Qlik memory source itself.
+ TableOutput (Database Table): Table's name to be used in the database.
+ Mode:                         0 is Full load with Truncate table.
+ Path:                         Library path at Qlik Sense perspective.
+ Path_Files:                   File path at Windows File System perspective to load at database for CSV and Meta QVD.
+ Format:                       csv is default. You can use other if necessary.
+ Delimiter:                    ; is default. You can use other if necessary.
+
+
+ Examples:
+
+  Call CreateCSVInsert('Fat_Sales',    'Fat_Sales', 0, 'lib://QVD',  'G:/QVD', 'csv', ';');
+  Call CreateCSVInsert('Fat_Sales',    'Fat_Sales', 0, '$(vFolder)', 'G:/QVD', 'txt', ',');
+  Call CreateCSVInsert('Tmp_Products', 'Products',  0, 'lib://QVD',  'G:/QVD', 'csv', ';');
+
+ */
+
+
+ // Debug
+ Trace
+ .
+ -------------------------------------------------------------
+ > Reading CreateCSVInsert from table: $(pTableSource)
+ -------------------------------------------------------------;
+
+ Let sqlTable                          = '$(pTableSource)';
+ Let CreateCSVInsert_Rows_Table_Source = NoOfRows('$(pTableSource)');
+
+
+
+ /*
+  Mode:
+   0 = Full       (Truncate and Insert)
+   1 = Additional (Insert all rows from table. Warning for duplicates)
+ */
+ If $(pMode) = 0 or Len($(pMode)) = 0 Then
+  Trace Truncating table '$(pTableSource)'...;
+  Lib Connect To '$(sqlDBCreate_DataConnection)';
+  SQL Truncate Table $(sqlTable)  $(sqlDBCreate_End);
+ Else
+  Trace Nothing;
+ EndIf
+
+
+ // Store CSV from Table:
+ Trace Storing $(pPath)/$(pTableSource).$(pFormat)...;
+ Store $(pTableSource) into $(pPath)/$(pTableSource).$(pFormat)(txt, delimiter is '$(pDelimiter)');
+
+
+ Trace Getting fields from table $(pTableSource)...;
+ For sqlCreateCSVValues_Fields = 1 to NoOfFields('$(pTableSource)')
+
+  // Get fields from table:
+  [CreateCSVValues_Field]:
+  Load
+   FieldName($(sqlCreateCSVValues_Fields), '$(pTableSource)') as [CreateCSVValues_Field],
+   RowNo()                                                    as [CreateCSVValues_RowNr]
+  AutoGenerate(1);
+
+ Next sqlCreateCSVValues_Fields // For sqlCreateCSVValues_Fields = 1 to NoOfFields('$(pTableSource)')
+
+
+ Set pMetaFileName = '$(pTableSource)';
+ 
+ // Add field properties:
+ Left Join ([CreateCSVValues_Field])
+ Load
+  "FieldName"                                                 as [CreateCSVValues_Field],
+
+   Pick( Match(-1,
+    Type = 'DATE',
+    Type = 'TIMESTAMP',
+    Type = 'INTEGER',
+    Type = 'FIX',
+    Type = 'UNKNOWN')+1,
+    '',
+    '$(sqlDBCreate_Field_Cast_Date)',
+    '$(sqlDBCreate_Field_Cast_Timestamp)',
+    '$(sqlDBCreate_Field_Cast_Int)',
+    '$(sqlDBCreate_Field_Cast_Fix)',
+    '$(sqlDBCreate_Field_Cast_Unknown)'
+    )                                                         as [CreateCSVValues_Cast]
+   
+ From $(pPath)/Meta_$(pMetaFileName).qvd(qvd);
+
+ Set pMetaFileName = '';
+
+
+ 
+ // Create SQL strings:
+ [CreateCSVValues_SQL]:
+ Load
+  '(' & Concat([CreateCSVValues_Field] & [CreateCSVValues_Cast], ', ', [CreateCSVValues_RowNr]) & ')' as [CreateCSVValues_Value]
+ Resident [CreateCSVValues_Field];
+ 
+
+
+ // Get field values:
+ Let sqlCreateCSVValues_Value = Peek('CreateCSVValues_Value',  0, 'CreateCSVValues_SQL');
+
+
+ Trace $(sqlCreateCSVValues_Value)  sqlCreateCSVValues_Value;
+
+ // Clean tables:
+ Drop Tables
+  [CreateCSVValues_Field],
+  [CreateCSVValues_SQL];
+
+
+
+
+ Trace Connecting to insert rows in CSV method from $(pTableSource) to $(pTableOutput)...;
+ Lib Connect To $(sqlDBCreate_DataConnection);
+
+ Trace Total rows at table '$(pTableSource)': $(CreateCSVInsert_Rows_Table_Source).;
+
+
+ Lib Connect To $(sqlDBCreate_DataConnection);
+
+
+
+ If '$(sqlDBCreate_DataConnection)'     = 'MySQL' then
+  
+  //Let sqlCreateCSVInsert_Execute = 'SQL LOAD DATA LOCAL INFILE ' & Chr(39) & '$(pPath_Files)' & '/' & '$(pTableSource)' & '.' & 'csv' & Chr(39) & ' INTO TABLE ' & '$(pTableOutput)' & ' FIELDS TERMINATED BY ' & Chr(39) & '$(pDelimiter)' & Chr(39) & ' LINES TERMINATED BY ' & Chr(39) & '\n' & Chr(39) & ' IGNORE 1 LINES ' & '$(sqlCreateCSVValues_Value)' & '$(sqlDBCreate_End)' & ';';
+  Set sqlCreateCSVInsert_Execute = "SQL LOAD DATA LOCAL INFILE '$(pPath_Files)/$(pTableSource).csv' INTO TABLE $(pTableOutput) FIELDS TERMINATED BY '$(pDelimiter)' LINES TERMINATED BY '\n' IGNORE 1 LINES $(sqlCreateCSVValues_Value) $(sqlDBCreate_End);"; 
+ 
+ ElseIf '$(sqlDBCreate_DataConnection)' = 'PostgreSQL' then
+
+  //Let sqlCreateCSVInsert_Execute = 'SQL COPY $(pTableOutput) $(sqlCreateCSVValues_Value) FROM ' & Chr(39) & '$(pPath_Files)' & '/' & '$(pTableSource)' & '.' & 'csv' & Chr(39) & ' WITH (FORMAT CSV, DELIMITER ' & Chr(39) & '$(pDelimiter)' & Chr(39) & ', HEADER TRUE) $(sqlDBCreate_End);';
+  Set sqlCreateCSVInsert_Execute = "SQL COPY $(pTableOutput) $(sqlCreateCSVValues_Value) FROM '$(pPath_Files)/$(pTableSource).csv' WITH (FORMAT CSV, DELIMITER '$(pDelimiter)', HEADER TRUE) $(sqlDBCreate_End);";
+ 
+ End If 
+  
+
+
+
+ $(sqlCreateCSVInsert_Execute)
+
+ DisConnect;
+
+
+ // Clean:
+ Set sqlCreateCSVInsert_Execute = '';
+ Set pMode                      = '';
+ Set pTableSource               = '';
+ Set pTableOutput               = '';
+ Set pPath                      = '';
+ Set pFormat                    = '';
+ Set pDelimiter                 = '';
+ Set sqlCreateSQLInsert_Rows    = '';
+ Set sqlTables                  = '';
+
+
+ // Debug
+ Trace 
+ .
+ -------------------------------------------------------------
+  > Ending CreateCSVInsert
+ -------------------------------------------------------------;
+
+End Sub // Sub CreateCSVInsert(pTableSource, pTableOutput, pMode, pPath, pPath_Files, pFormat, pDelimiter)

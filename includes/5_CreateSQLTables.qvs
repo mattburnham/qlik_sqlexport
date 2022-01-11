@@ -1,0 +1,90 @@
+Sub CreateSQLTables(pTable, pPath, pMetaFileName)
+
+
+ // Debug
+ Trace
+ .
+ -------------------------------------------------------------
+ > Reading CreateSQLTables from table: $(pTable)
+ -------------------------------------------------------------;
+
+
+ For sqlCreateSQLTables_Fields =  1 to NoOfFields('$(pTable)')
+
+  // Get fields from table:
+  [CreateSQLTables_Field]:
+  Load
+   FieldName($(sqlCreateSQLTables_Fields), '$(pTable)') as [CreateSQLTables_Field]
+  AutoGenerate(1);
+
+ Next sqlCreateSQLTables_Fields // For sqlCreateSQLTables_Fields = 0 to NoOfFields('$(pTable)')
+
+
+
+ // Meta:
+ Call MetaFile('$(pPath)', '$(pMetaFileName)');
+
+ // Add field properties:
+ Left Join ([CreateSQLTables_Field])
+ Load
+  "FieldName"                                    as [CreateSQLTables_Field],
+  RowNo()                                        as [CreateSQLTables_RowNr],
+  
+  Pick( Match(-1,
+   Type = 'DATE',
+   Type = 'TIMESTAMP',
+   Type = 'INTEGER',
+   Type = 'FIX',
+   Type = 'UNKNOWN')+1,
+   'VARCHAR(' & $(sqlDBCreate_Varchar_Length) & ')' & ' $(sqlDBCreate_Default)',
+   'DATE'                                           & ' $(sqlDBCreate_Default)',
+   'TIMESTAMP'                                      & ' $(sqlDBCreate_Default)',
+   'INT'                                            & ' $(sqlDBCreate_Default)', // 'INT(11)'
+   'DECIMAL(20,' & nDec & ')'                       & ' $(sqlDBCreate_Default)',
+   'VARCHAR(' & $(sqlDBCreate_Varchar_Length) & ')' & ' $(sqlDBCreate_Default)'
+   )                                             as [CreateSQLTables_String]
+   
+ From $(pPath)/Meta_$(pMetaFileName).qvd(qvd);
+
+
+
+ // Create SQL strings:
+ [CreateSQLTables_SQL]:
+ Load
+  '$(sqlDBCreate_CreateTable)' & '$(sqlDBCreate_Character)' & '$(pTable)' & '$(sqlDBCreate_Character)' & ' (' & Concat('$(sqlDBCreate_Character)' & [CreateSQLTables_Field] & '$(sqlDBCreate_Character) ' & [CreateSQLTables_String], ',', [CreateSQLTables_RowNr]) & ' )' & '$(sqlDBCreate_Collate)' & ' $(sqlDBCreate_End);' as [CreateSQLTables_Insert]
+ Resident [CreateSQLTables_Field];
+
+
+ // Get field values:
+ Let sqlCreateSQLTables_Insert = Peek('CreateSQLTables_Insert', 0, 'CreateSQLTables_SQL');
+
+
+ // Clean tables:
+ Drop Tables
+  [CreateSQLTables_Field],
+  [CreateSQLTables_SQL];
+
+
+
+ Lib Connect To $(sqlDBCreate_DataConnection);
+
+  Trace Inserting rows at table $(pTable)...; 
+  $(sqlCreateSQLTables_Insert)
+
+ DisConnect;
+
+
+ // Clean variables:
+ SET sqlCreateSQLTables_Fields = '';
+ SET sqlCreateSQLTables_Insert = '';
+ SET sqlCreateSQLTables_Value  = '';
+
+
+ // Debug
+ Trace 
+ .
+ -------------------------------------------------------------
+  > Ending CreateSQLTables
+ -------------------------------------------------------------;
+
+End Sub // Sub CreateSQLTables(pTable, pPath, pMetaFileName)
