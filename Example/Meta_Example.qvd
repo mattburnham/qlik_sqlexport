@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
  <QvdTableHeader>
    <QvBuildNo>50652</QvBuildNo>
-   <CreatorDoc>E:\Documentos\OneDrive\JOINDATA\Projetos em Andamento\Github\qlik_sqlexport\TENSINI_ExportSQL.qvf</CreatorDoc>
-   <CreateUtcTime>2022-01-09 22:23:57</CreateUtcTime>
+   <CreatorDoc>E:\Documentos\OneDrive\JOINDATA\Projetos em Andamento\Github\qlik_sqlexport\Example\TENSINI_ExportSQL.qvf</CreatorDoc>
+   <CreateUtcTime>2022-01-11 11:25:18</CreateUtcTime>
    <SourceCreateUtcTime></SourceCreateUtcTime>
    <SourceFileUtcTime></SourceFileUtcTime>
    <SourceFileSize>-1</SourceFileSize>
@@ -178,7 +178,7 @@
        </NumberFormat>
        <NoOfSymbols>4</NoOfSymbols>
        <Offset>352</Offset>
-       <Length>35</Length>
+       <Length>37</Length>
        <Comment></Comment>
        <Tags>
          <String>$numeric</String>
@@ -199,8 +199,8 @@
          <Thou></Thou>
        </NumberFormat>
        <NoOfSymbols>5</NoOfSymbols>
-       <Offset>387</Offset>
-       <Length>49</Length>
+       <Offset>389</Offset>
+       <Length>53</Length>
        <Comment></Comment>
        <Tags>
          <String>$numeric</String>
@@ -221,8 +221,8 @@
          <Thou></Thou>
        </NumberFormat>
        <NoOfSymbols>5</NoOfSymbols>
-       <Offset>436</Offset>
-       <Length>47</Length>
+       <Offset>442</Offset>
+       <Length>50</Length>
        <Comment></Comment>
        <Tags>
          <String>$numeric</String>
@@ -243,7 +243,7 @@
          <Thou></Thou>
        </NumberFormat>
        <NoOfSymbols>4</NoOfSymbols>
-       <Offset>483</Offset>
+       <Offset>492</Offset>
        <Length>34</Length>
        <Comment></Comment>
        <Tags>
@@ -265,7 +265,7 @@
          <Thou></Thou>
        </NumberFormat>
        <NoOfSymbols>3</NoOfSymbols>
-       <Offset>517</Offset>
+       <Offset>526</Offset>
        <Length>21</Length>
        <Comment></Comment>
        <Tags>
@@ -287,7 +287,7 @@
          <Thou></Thou>
        </NumberFormat>
        <NoOfSymbols>2</NoOfSymbols>
-       <Offset>538</Offset>
+       <Offset>547</Offset>
        <Length>14</Length>
        <Comment></Comment>
        <Tags>
@@ -309,7 +309,7 @@
          <Thou></Thou>
        </NumberFormat>
        <NoOfSymbols>5</NoOfSymbols>
-       <Offset>552</Offset>
+       <Offset>561</Offset>
        <Length>55</Length>
        <Comment></Comment>
        <Tags>
@@ -331,7 +331,7 @@
          <Thou></Thou>
        </NumberFormat>
        <NoOfSymbols>2</NoOfSymbols>
-       <Offset>607</Offset>
+       <Offset>616</Offset>
        <Length>5</Length>
        <Comment></Comment>
        <Tags>
@@ -353,7 +353,7 @@
          <Thou></Thou>
        </NumberFormat>
        <NoOfSymbols>1</NoOfSymbols>
-       <Offset>612</Offset>
+       <Offset>621</Offset>
        <Length>2</Length>
        <Comment></Comment>
        <Tags>
@@ -365,7 +365,7 @@
    <Compression></Compression>
    <RecordByteSize>4</RecordByteSize>
    <NoOfRecords>5</NoOfRecords>
-   <Offset>614</Offset>
+   <Offset>623</Offset>
    <Length>20</Length>
    <Lineage></Lineage>
    <Comment></Comment>
@@ -373,6 +373,4 @@
    <TableTags></TableTags>
    <ProfilingData></ProfilingData>
  </QvdTableHeader>
- Example|0 Example|Example_Integer Example|Example_Now Example|Example_Number Example|Example_Number_Dec4 Example|Example_String Example_Integer Example_Now Example_Number Example_Number_Dec4 Example_String $integer, $numeric $numeric, $timestamp $numeric $ascii, $text     0     32 
-   10    20 
-   10     0    8    12     0 è  1000    1 e   101 º  954     0 ¤¡  41380 ˆ  5000   5901 —8  14487 ˆ  5000 	   9 …  901 Š!  8586 i  26893 INTEGER TIMESTAMP FIX UNKNOWN     0    2    4    1     0 ###0 YYYY-MM-DD hh:mm:ss[.fff] ###0.00 ###0.0000  .       	I"Å’LÛ+$$Ì
+ Example|0 Example|Example_Integer Example|Example_Now Example|Example_Number Example|Example_Number_Dec4 Example|Example_String Example_Integer Example_Now Example_Number Example_Number_Dec4 Example_String $integer, $numeric $numeric, $timestamp $numeric $ascii, $text     0 )   41    28    14    14     0    7    13     0 '  10000    1 e   101 ¡  6305     0 èå 386536 PÃ  50000 ÕÆ  50901 z¤ 107642 PÃ  50000 	   9 …  901 ¥Ý  56741 nA 278894 INTEGER TIMESTAMP FIX UNKNOWN     0    2    4    1     0 ###0 YYYY-MM-DD hh:mm:ss[.fff] ###0.00 ###0.0000  .       	I"Å’LÛt+$$Ì
