@@ -2,7 +2,7 @@
 
 With this routine you can export tables from Qlik's memory to an SQL database.
 
-In this example the requirements for MySQL and Postgres are preconfigured. You can adapt to other banks as needed.
+In this example the requirements for MySQL and Postgres are preconfigured. You can adapt to other Databases as needed.
 
 
 
